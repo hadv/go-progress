@@ -7,7 +7,7 @@ import (
 
 func main() {
 	var progress uint32
-	done := make(chan interface{})
+	done := make(chan interface{}, 1)
 	defer close(done)
 	go func() {
 		for {
@@ -18,11 +18,13 @@ func main() {
 			case <-time.After(time.Second):
 				atomic.AddUint32(&progress, 1)
 				println("Sắp hết tết rồi", atomic.LoadUint32(&progress))
+				// Mùng 3 là hết tết :)
+				if atomic.LoadUint32(&progress) == 3 {
+					done <- true
+				}
 			}
 		}
 	}()
 
 	time.Sleep(4 * time.Second)
-	done <- true
-	time.Sleep(2 * time.Second)
 }
